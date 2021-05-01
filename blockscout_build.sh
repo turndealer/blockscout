@@ -1,29 +1,29 @@
 #!/bin/bash
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 3 ]; then 
 	echo "Insufficient # of parameters supplied."
 	exit 1
 else
-	rpcRegex='(https?)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
-	if [[ "$1" =~ $rpcRegex ]]; then
+	if [[ "$1" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
 		echo "Valid Consortium IP Address"
-	else
+	else 
 		echo "$(tput setaf 1)Invalid Consortium IP Address supplied."
 		exit 1
 	fi
-
-	wsRegex='(wss|ws?)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
-	if [[ "$2" =~ $wsRegex ]]; then
+	
+	if [[ "$2" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
 		echo "Valid WebSocket IP Address"
-	else
+	else 
 		echo "$(tput setaf 1)Invalid WebSocket IP Address supplied."
 		exit 1
 	fi
 fi
 
-RPC_ENDPOINT=$1
-WEBSOCKET_ENDPOINT=$2
+CONSORTIUM_IP=$1
+WEBSOCKET_IP=$2
 DATABASE_PW=$3
+RPC_PORT=${4:-8540}
+WEBSOCKET_PORT=${5:-8547}
 
 # Erlang VM & Elixir Install
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
@@ -42,7 +42,7 @@ sudo apt-get -y install nginx && sudo ufw allow 'Nginx HTTP'
 # Node.js & NPM Install
 curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 sudo apt-get -y install nodejs
-sudo ln -s /usr/bin/nodejs /usr/bin/node
+sudo ln -s /usr/bin/nodejs /usr/bin/node 
 
 # PostgreSQL Install
 echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' sudo tee -a /etc/apt/sources.list.d/pgdg.list
@@ -71,16 +71,17 @@ sudo MIX_ENV=prod mix do deps.get, local.rebar --force, deps.compile, compile &&
 cd apps/explorer/config/prod
 echo "
 use Mix.Config
+
 config :explorer,
   json_rpc_named_arguments: [
     transport: EthereumJSONRPC.HTTP,
     transport_options: [
       http: EthereumJSONRPC.HTTP.HTTPoison,
-      url: \"$RPC_ENDPOINT\",
+      url: \"http://$CONSORTIUM_IP:$RPC_PORT\",
       method_to_url: [
-        eth_call: \"$RPC_ENDPOINT\",
-        eth_getBalance: \"$RPC_ENDPOINT\",
-        trace_replayTransaction: \"$RPC_ENDPOINT\"
+        eth_call: \"http://$CONSORTIUM_IP:$RPC_PORT\,
+        eth_getBalance: \"http://$CONSORTIUM_IP:$RPC_PORT\",
+        trace_replayTransaction: \"http://$CONSORTIUM_IP:$RPC_PORT\"
       ],
       http_options: [recv_timeout: :timer.minutes(1), timeout: :timer.minutes(1), hackney: [pool: :ethereum_jsonrpc]]
     ],
@@ -90,15 +91,16 @@ config :explorer,
     transport: EthereumJSONRPC.WebSocket,
     transport_options: [
       web_socket: EthereumJSONRPC.WebSocket.WebSocketClient,
-      url: \"$WEBSOCKET_ENDPOINT\"
+      url: \"ws://$WEBSOCKET_IP:$WEBSOCKET_PORT\"
     ],
     variant: EthereumJSONRPC.Geth
- ]" | sudo tee geth.exs
+ ]" | sudo tee parity.exs 
 cd -
 
 cd apps/explorer/config
 echo "
 use Mix.Config
+
 config :explorer, Explorer.Repo,
   username: \"postgres\",
   password: \"$DATABASE_PW\",
@@ -110,6 +112,7 @@ config :explorer, Explorer.Repo,
   #ssl: String.equivalent?(System.get_env(\"ECTO_USE_SSL\") || \"true\", \"true\"),
   prepare: :unnamed,
   timeout: :timer.seconds(60)
+
 variant =
   if is_nil(System.get_env(\"ETHEREUM_JSONRPC_VARIANT\")) do
     \"geth\"
@@ -118,7 +121,7 @@ variant =
     |> String.split(\".\")
     |> List.last()
     |> String.downcase()
-  end" | sudo tee prod.exs
+  end" | sudo tee prod.exs 
 cd -
 
 # Update Indexer Configuration Files
@@ -126,17 +129,18 @@ cd apps/indexer/config/prod
 
 echo "
 use Mix.Config
+
 config :indexer,
   block_interval: :timer.seconds(5),
   json_rpc_named_arguments: [
     transport: EthereumJSONRPC.HTTP,
     transport_options: [
       http: EthereumJSONRPC.HTTP.HTTPoison,
-      url: \"$RPC_ENDPOINT\",
+      url: \"http://$CONSORTIUM_IP:$RPC_PORT\",
       method_to_url: [
-        eth_getBalance: \"$RPC_ENDPOINT\",
-        trace_block: \"$RPC_ENDPOINT\",
-        trace_replayTransaction: \"$RPC_ENDPOINT\"
+        eth_getBalance: \"http://$CONSORTIUM_IP:$RPC_PORT\",
+        trace_block: \"http://$CONSORTIUM_IP:$RPC_PORT\",
+        trace_replayTransaction: \"http://$CONSORTIUM_IP:$RPC_PORT\"
       ],
       http_options: [recv_timeout: :timer.minutes(1), timeout: :timer.minutes(1), hackney: [pool: :ethereum_jsonrpc]]
     ],
@@ -146,16 +150,17 @@ config :indexer,
     transport: EthereumJSONRPC.WebSocket,
     transport_options: [
       web_socket: EthereumJSONRPC.WebSocket.WebSocketClient,
-      url: \"$WEBSOCKET_ENDPOINT\"
+      url: \"ws://$WEBSOCKET_IP:$WEBSOCKET_PORT\"
     ]
   ]
-" | sudo tee geth.exs
+" | sudo tee parity.exs 
 cd -
 
 # Update Blockscout Web Configuration Files
 cd apps/block_scout_web/config
 echo "
 use Mix.Config
+
 config :block_scout_web, BlockScoutWeb.Endpoint,
   force_ssl: false,
   check_origin: false,
@@ -164,7 +169,7 @@ config :block_scout_web, BlockScoutWeb.Endpoint,
     scheme: \"http\",
     port: \"4000\",
 	host: \"*.azure.com\"
-  ]" | sudo tee prod.exs
+  ]" | sudo tee prod.exs 
 cd -
 
 # Drop Old DB (If Exists) && Create + Migrate DB
@@ -182,6 +187,7 @@ cd ../../../etc/systemd/system
 echo "
 	[Unit]
 	Description=Blockscout Web App
+
 	[Service]
 	Type=simple
 	User=$USER
@@ -191,6 +197,7 @@ echo "
 	Environment=LANG=en_US.UTF-8
 	WorkingDirectory=/home/$USER/blockscout
 	ExecStart=/usr/local/bin/mix phx.server
+
 	[Install]
 	WantedBy=multi-user.target
 " | sudo tee blockscout.service
@@ -202,10 +209,12 @@ echo "
 	events {
 		worker_connections  1024;
 	}
+
 	http {
 		server {
 		    listen 80;
 			server_name \"\";
+
 			location / {
 				proxy_pass http://localhost:4000;
 				proxy_http_version 1.1;
