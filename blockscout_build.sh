@@ -3,27 +3,13 @@
 if [ $# -lt 3 ]; then 
 	echo "Insufficient # of parameters supplied."
 	exit 1
-else
-	if [[ "$1" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
-		echo "Valid Consortium IP Address"
-	else 
-		echo "$(tput setaf 1)Invalid Consortium IP Address supplied."
-		exit 1
-	fi
-	
-	if [[ "$2" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
-		echo "Valid WebSocket IP Address"
-	else 
-		echo "$(tput setaf 1)Invalid WebSocket IP Address supplied."
-		exit 1
-	fi
 fi
 
 CONSORTIUM_IP=$1
 WEBSOCKET_IP=$2
 DATABASE_PW=$3
-RPC_PORT=${4:-8540}
-WEBSOCKET_PORT=${5:-8547}
+RPC_PORT=${4:-9933}
+WEBSOCKET_PORT=${5:-9944}
 
 # Erlang VM & Elixir Install
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
