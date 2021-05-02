@@ -45,7 +45,7 @@ sudo git clone https://github.com/poanetwork/blockscout.git && echo "cloned"
 cd blockscout
 sudo git checkout 53ea60c3 && echo "checked out"; cd -
 sudo chmod -R a+x blockscout && echo "permissions granted"
-
+export ETHEREUM_JSONRPC_VARIANT=geth
 
 # Install Mix Dependencies
 cd blockscout
@@ -80,7 +80,7 @@ config :explorer,
       url: \"ws://$WEBSOCKET_IP:$WEBSOCKET_PORT\"
     ],
     variant: EthereumJSONRPC.Geth
- ]" | sudo tee parity.exs 
+ ]" | sudo tee geth.exs 
 cd -
 
 cd apps/explorer/config
@@ -139,7 +139,7 @@ config :indexer,
       url: \"ws://$WEBSOCKET_IP:$WEBSOCKET_PORT\"
     ]
   ]
-" | sudo tee parity.exs 
+" | sudo tee geth.exs 
 cd -
 
 # Update Blockscout Web Configuration Files
@@ -182,6 +182,7 @@ echo "
 	Environment=MIX_ENV=prod
 	Environment=LANG=en_US.UTF-8
 	WorkingDirectory=/home/$USER/blockscout
+	export ETHEREUM_JSONRPC_VARIANT=geth
 	ExecStart=/usr/local/bin/mix phx.server
 
 	[Install]
