@@ -63,6 +63,7 @@ sudo chmod -R a+x blockscout && echo "permissions granted"
 
 # Install Mix Dependencies
 cd blockscout
+export ETHEREUM_JSONRPC_VARIANT=geth
 sudo MIX_ENV=prod mix local.hex --force && echo "hex installed"
 sudo MIX_ENV=prod mix deps.update libsecp256k1
 sudo MIX_ENV=prod mix do deps.get, local.rebar --force, deps.compile, compile && echo "mix deps installed"
@@ -85,7 +86,7 @@ config :explorer,
       ],
       http_options: [recv_timeout: :timer.minutes(1), timeout: :timer.minutes(1), hackney: [pool: :ethereum_jsonrpc]]
     ],
-    variant: EthereumJSONRPC.Parity
+    variant: EthereumJSONRPC.Geth
   ],
   subscribe_named_arguments: [
     transport: EthereumJSONRPC.WebSocket,
@@ -94,7 +95,7 @@ config :explorer,
       url: \"$WEBSOCKET_ENDPOINT\"
     ],
     variant: EthereumJSONRPC.Parity
- ]" | sudo tee parity.exs
+ ]" | sudo tee geth.exs
 cd -
 
 cd apps/explorer/config
@@ -115,7 +116,7 @@ config :explorer, Explorer.Repo,
 
 variant =
   if is_nil(System.get_env(\"ETHEREUM_JSONRPC_VARIANT\")) do
-    \"parity\"
+    \"geth\"
   else
     System.get_env(\"ETHEREUM_JSONRPC_VARIANT\")
     |> String.split(\".\")
@@ -144,7 +145,7 @@ config :indexer,
       ],
       http_options: [recv_timeout: :timer.minutes(1), timeout: :timer.minutes(1), hackney: [pool: :ethereum_jsonrpc]]
     ],
-    variant: EthereumJSONRPC.Parity
+    variant: EthereumJSONRPC.Geth
   ],
   subscribe_named_arguments: [
     transport: EthereumJSONRPC.WebSocket,
@@ -153,7 +154,7 @@ config :indexer,
       url: \"$WEBSOCKET_ENDPOINT\"
     ]
   ]
-" | sudo tee parity.exs
+" | sudo tee geth.exs
 cd -
 
 # Update Blockscout Web Configuration Files
@@ -196,6 +197,7 @@ echo "
 	Environment=MIX_ENV=prod
 	Environment=LANG=en_US.UTF-8
 	WorkingDirectory=/home/$USER/blockscout
+	export ETHEREUM_JSONRPC_VARIANT=geth
 	ExecStart=/usr/local/bin/mix phx.server
 
 	[Install]
