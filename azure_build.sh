@@ -94,7 +94,7 @@ config :explorer,
       web_socket: EthereumJSONRPC.WebSocket.WebSocketClient,
       url: \"$WEBSOCKET_ENDPOINT\"
     ],
-    variant: EthereumJSONRPC.Parity
+    variant: EthereumJSONRPC.Geth
  ]" | sudo tee geth.exs
 cd -
 
