@@ -22,7 +22,7 @@ ln -s /opt/rust/bin/* /usr/local/bin/
 ln -s /opt/elixir/bin/* /usr/local/bin/
 
 # Build
-git clone https://github.com/poanetwork/blockscout && cd blockscout
+git clone https://github.com/blockscout/blockscout && cd blockscout
 
 mix deps.get
 mix phx.gen.secret
