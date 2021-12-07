@@ -6,7 +6,7 @@ sudo dpkg -i erlang-solutions_2.0_all.deb
 sudo apt-get update
 sudo apt-get install -y esl-erlang=1:23*
 
-wget https://github.com/elixir-lang/elixir/releases/download/v1.11.0/Precompiled.zip
+wget https://github.com/elixir-lang/elixir/releases/download/v1.13.0/Precompiled.zip
 sudo unzip Precompiled.zip -d /opt/elixir
 
 sudo apt-get install -y automake libtool libgmp3-dev inotify-tools postgresql postgresql-contrib npm
