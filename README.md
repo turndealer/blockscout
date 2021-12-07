@@ -12,7 +12,7 @@ sudo unzip Precompiled.zip -d /opt/elixir
 sudo apt-get install -y automake libtool libgmp3-dev inotify-tools postgresql postgresql-contrib npm
 
 sudo apt update
-curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+curl -sL https://deb.nodesource.com/setup_16.x | sudo bash -
 sudo apt -y install nodejs
 
 curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -31,8 +31,8 @@ echo "
 # blockscout/start.sh
 
 export HOME=/home/{ YOUR_HOME } # DON'T FORGET CHANGE THIS
-export ETHEREUM_JSONRPC_HTTP_URL=http://geth:8545  # DON'T FORGET CHANGE THIS
-export ETHEREUM_JSONRPC_WS_URL=ws://geth:8546  # DON'T FORGET CHANGE THIS
+export ETHEREUM_JSONRPC_HTTP_URL=http://127.0.0.1:8503  # DON'T FORGET CHANGE THIS
+export ETHEREUM_JSONRPC_WS_URL=ws://127.0.0.1:8546  # DON'T FORGET CHANGE THIS
 export ETHEREUM_JSONRPC_TRACE_URL=http://geth:8545  # DON'T FORGET CHANGE THIS
 export ETHEREUM_JSONRPC_VARIANT=geth
 export COIN=ETH
