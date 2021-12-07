@@ -20,8 +20,11 @@ export RUSTUP_HOME=/opt/rust
 export CARGO_HOME=/opt/rust
 ln -s /opt/rust/bin/* /usr/local/bin/
 ln -s /opt/elixir/bin/* /usr/local/bin/
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+
 
 # Build
+sudo apt install git -y
 git clone https://github.com/blockscout/blockscout && cd blockscout
 
 mix deps.get
