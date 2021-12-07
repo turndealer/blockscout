@@ -40,6 +40,7 @@ export ETHEREUM_JSONRPC_TRACE_URL=http://geth:8545  # DON'T FORGET CHANGE THIS
 export ETHEREUM_JSONRPC_VARIANT=geth
 export COIN=ETH
 export DATABASE_URL=postgresql://{ USER_NAME }:{ PASSWORD }@{ DB_HOST }:5432/{ DB_NAME } # DON'T FORGET CHANGE THIS
+export MIX_ENV=prod
 " > start.sh
 
 mix do deps.get, local.rebar --force, deps.compile, compile
