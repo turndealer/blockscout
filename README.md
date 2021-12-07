@@ -1,3 +1,4 @@
+```
 # blockscout
 # Dependencies
 wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb
@@ -47,3 +48,4 @@ cd apps/explorer && npm install && cd -
 mix phx.digest
 
 cd apps/block_scout_web && mix phx.gen.cert blockscout blockscout.local && cd -
+```
